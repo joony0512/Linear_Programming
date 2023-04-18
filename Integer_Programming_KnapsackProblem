@@ -1,0 +1,24 @@
+from pulp import *
+
+items = [
+    {'name': '생수', 'utility': 10, 'weight': 3.5},
+    {'name': '책', 'utility': 5, 'weight': 1.5},
+    {'name': '랜턴', 'utility': 10, 'weight': 3.0},
+    {'name': '우산', 'utility': 50, 'weight': 6.0},
+    {'name': '침낭', 'utility': 30, 'weight': 15.0}
+]
+
+prob = LpProblem("0-1 Knapsack Problem", LpMaximize)
+
+item_vars = LpVariable.dicts("item", [item['name'] for item in items], lowBound=0, upBound=1, cat='Integer')
+
+prob += lpSum([item_vars[item['name']] * item['utility'] for item in items])
+prob += lpSum([item_vars[item['name']] * item['weight'] for item in items]) <= 15.0
+
+prob.solve()
+
+print(f"Status: {LpStatus[prob.status]}")
+print(f"Total utility: {value(prob.objective)}")
+for item in items:
+    if item_vars[item['name']].value() == 1:
+        print(f"{item['name']} is selected.")
